@@ -11,7 +11,7 @@ import {json} from '@sveltejs/kit';
 
 
 export const GET: RequestHandler = async () => {
-  const res = await axios.get(`${PUBLIC_BACK_ENDPOINT}/all`);
+  const res = await axios.get(`${PUBLIC_BACK_ENDPOINT}/task/all`);
 
   const tasks: TTasksResponse = TasksResponse.parse(res.data);
 

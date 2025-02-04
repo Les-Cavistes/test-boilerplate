@@ -16,6 +16,9 @@ use self::schema::tasks;
 
 use crate::DbConn;
 
+/// # Task
+/// Represents a task in the system.
+/// This struct maps directly to the database 'tasks' table.
 #[derive(Serialize, Queryable, Insertable, Debug, Clone)]
 #[serde(crate = "rocket::serde")]
 #[diesel(table_name = tasks)]
@@ -26,11 +29,17 @@ pub struct Task {
     pub completed: bool,
 }
 
-#[derive(Debug, rocket::FromForm)]
+/// # Todo
+/// Represents the input format for creating a new task.
+/// Contains only the description as the completed status is set to false by default.
+#[derive(Debug, rocket::FromForm, rocket::serde::Deserialize)]
+#[serde(crate = "rocket::serde")]
 pub struct Todo {
     pub description: String,
 }
 
+/// # Pagination
+/// Handles pagination parameters for task listing.
 #[derive(Debug)]
 pub struct Pagination {
     pub page: i64,
@@ -46,6 +55,8 @@ impl Default for Pagination {
     }
 }
 
+/// # PaginatedTasks
+/// Contains a page of tasks along with pagination metadata.
 #[derive(Debug, Serialize)]
 #[serde(crate = "rocket::serde")]
 pub struct PaginatedTasks {
@@ -57,25 +68,52 @@ pub struct PaginatedTasks {
 }
 
 impl Task {
+    /// # `all`
+    /// Retrieves all tasks from the database, ordered by ID in descending order.
+    ///
+    /// ## Arguments
+    /// * `conn` - Database connection
+    ///
+    /// ## Returns
+    /// A Result containing a vector of all tasks
     pub async fn all(conn: &DbConn) -> QueryResult<Vec<Task>> {
         conn.run(|c| tasks::table.order(tasks::id.desc()).load::<Task>(c))
             .await
     }
 
-    /// Returns the number of affected rows: 1.
-    pub async fn insert(todo: Todo, conn: &DbConn) -> QueryResult<usize> {
+    /// # `insert`
+    /// Creates a new task in the database.
+    ///
+    /// ## Arguments
+    /// * `todo` - The todo item to insert
+    /// * `conn` - Database connection
+    ///
+    /// ## Returns
+    /// The newly created task
+    pub async fn insert(todo: Todo, conn: &DbConn) -> QueryResult<Task> {
         conn.run(|c| {
             let t = Task {
                 id: None,
                 description: todo.description,
                 completed: false,
             };
-            diesel::insert_into(tasks::table).values(&t).execute(c)
+            diesel::insert_into(tasks::table).values(&t).execute(c)?;
+
+            // Fetch and return the inserted task
+            tasks::table.order(tasks::id.desc()).first(c)
         })
         .await
     }
 
-    /// Returns the number of affected rows: 1.
+    /// # `toggle_with_id`
+    /// Toggles the completion status of a task.
+    ///
+    /// ## Arguments
+    /// * `id` - The ID of the task to toggle
+    /// * `conn` - Database connection
+    ///
+    /// ## Returns
+    /// The updated task
     pub async fn toggle_with_id(id: i32, conn: &DbConn) -> QueryResult<Task> {
         conn.run(move |c| {
             let task = tasks::table
@@ -92,7 +130,15 @@ impl Task {
         .await
     }
 
-    /// Returns the number of affected rows: 1.
+    /// # `delete_with_id`
+    /// Deletes a task from the database.
+    ///
+    /// ## Arguments
+    /// * `id` - The ID of the task to delete
+    /// * `conn` - Database connection
+    ///
+    /// ## Returns
+    /// The number of affected rows (should be 1)
     pub async fn delete_with_id(id: i32, conn: &DbConn) -> QueryResult<usize> {
         conn.run(move |c| {
             diesel::delete(tasks::table)
@@ -102,12 +148,29 @@ impl Task {
         .await
     }
 
-    /// Returns the number of affected rows.
+    /// # `delete_all`
+    /// Deletes all tasks from the database.
+    /// This function is only available in test builds.
+    ///
+    /// ## Arguments
+    /// * `conn` - Database connection
+    ///
+    /// ## Returns
+    /// The number of deleted tasks
     #[cfg(test)]
     pub async fn delete_all(conn: &DbConn) -> QueryResult<usize> {
         conn.run(|c| diesel::delete(tasks::table).execute(c)).await
     }
 
+    /// # `paginated`
+    /// Retrieves a paginated list of tasks.
+    ///
+    /// ## Arguments
+    /// * `pagination` - Pagination parameters
+    /// * `conn` - Database connection
+    ///
+    /// ## Returns
+    /// A paginated result containing tasks and metadata
     pub async fn paginated(pagination: Pagination, conn: &DbConn) -> QueryResult<PaginatedTasks> {
         conn.run(move |c| {
             // Get total count

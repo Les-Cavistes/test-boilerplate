@@ -13,7 +13,7 @@ export const PUT: RequestHandler = async (event) => {
   const id = event.params.id;
 
   try {
-    const response = await axios.put(`${PUBLIC_BACK_ENDPOINT}/${id}`);
+    const response = await axios.put(`${PUBLIC_BACK_ENDPOINT}/task/${id}`);
     
     return json({
       completed: response.data.completed,
