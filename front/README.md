@@ -1,38 +1,106 @@
-# sv
+# Task Management Application
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A modern, type-safe task management application built with SvelteKit. Features real-time task updates, optimistic UI
+updates, and a clean, responsive design.
 
-## Creating a project
+## Features
 
-If you're seeing this, you've probably already done this step. Congrats!
+- ✨ Create, toggle, and delete tasks
+- 🔄 Real-time UI updates
+- 🎨 Clean, responsive design
+- 🔒 Type-safe implementation
+- ⚡ Optimistic updates for better UX
 
-```bash
-# create a new project in the current directory
-npx sv create
+## Technical Stack
 
-# create a new project in my-app
-npx sv create my-app
+- **Frontend Framework**: SvelteKit
+- **Language**: TypeScript
+- **Styling**: SCSS
+- **API Communication**: Axios
+- **Validation**: Zod
+- **State Management**: Svelte Stores
+
+## Project Structure
+
+```
+src/
+├── lib/
+│   ├── stores/      # Svelte stores for state management
+│   ├── styles/      # SCSS styles
+│   └── types/       # TypeScript type definitions
+└── routes/
+    └── api/         # API route handlers
 ```
 
-## Developing
+## Getting Started
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+1. Clone the repository:
 
 ```bash
-npm run dev
+git clone <repository-url>
+```
 
-# or start the server and open the app in a new browser tab
+2. Install dependencies:
+```bash
+npm install
+# or
+pnpm install
+# or
+yarn
+```
+
+3. Set up environment variables:
+   Create a `.env` file with:
+
+```
+PUBLIC_BACK_ENDPOINT=<your-backend-url>
+```
+
+4. Start development server:
+```bash
+npm run dev
+# or
 npm run dev -- --open
 ```
 
-## Building
+## Development
 
-To create a production version of your app:
+### API Routes
+
+The application uses SvelteKit's server routes for API handling. API endpoints are located in `src/routes/api/` and
+include:
+
+- `GET /api/task/all` - Fetch all tasks
+- `POST /api/task` - Create new task
+- `PATCH /api/task/[id]/toggle` - Toggle task completion
+- `DELETE /api/task/[id]` - Delete task
+
+### State Management
+
+Task state is managed through a custom Svelte store (`src/lib/stores/tasks.ts`) that provides:
+
+- Sorted task list management
+- Optimistic updates
+- Type-safe operations
+
+### Building
+
+To create a production version:
 
 ```bash
 npm run build
 ```
 
-You can preview the production build with `npm run preview`.
+Preview the production build with:
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+```bash
+npm run preview
+```
+
+## Deployment
+
+Before deploying, ensure you:
+
+1. Set up environment variables
+2. Install appropriate [adapter](https://svelte.dev/docs/kit/adapters) for your target environment
+3. Build the application
