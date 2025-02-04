@@ -1,6 +1,6 @@
 /**
- * @file src/lib/types.d.ts
- * @description types.d
+ * @file src/routes/api/task/types.ts
+ * @description types
  * @author Tom Planche
  */
 import {z} from "zod";
@@ -24,5 +24,5 @@ export const TasksResponse = z.object({
 export type TTasksResponse = z.infer<typeof TasksResponse>;
 
 /**
- * End of file src/lib/types.d.ts
+ * End of file src/routes/api/task/types.ts
  */

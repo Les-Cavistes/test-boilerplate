@@ -1,23 +1,16 @@
 <script lang="ts">
   // Imports
-  import {onMount} from "svelte";
-  import type {PageProps} from "../../.svelte-kit/types/src/routes/$types";
-  import type {TTask} from "$lib/types";
   import {tasksStore} from '$lib/stores/tasks';
   import axios from "axios";
   import "$lib/styles/main.scss";
+  import type {TToggleTaskResponse} from "./api/task/[id]/toggle/+server";
+  import type {TTask} from "$lib/types/task";
 
   // Variables
-  const {data}: PageProps = $props();
-
-  const tasks = $state<{
-    tasks: TTask[],
-    total: number,
+  const taskUtils = $state<{
     loading: Record<number, boolean>,
     creating: boolean,
   }>({
-    tasks: [],
-    total: 0,
     loading: {},
     creating: false,
   });
@@ -26,32 +19,28 @@
   let errorMessage = $state("");
 
   // Functions
-  const handleToggle = async (taskId: number, currentCompleted: boolean) => {
+  const handleToggle = async (task: TTask) => {
     // Set loading state for this task
-    tasks.loading[taskId] = true;
+    taskUtils.loading[task.id] = true;
 
     try {
-      const response = await axios.get(`/api/task/${taskId}/toggle`);
+      const response = await axios.patch<TToggleTaskResponse>(`/api/task/${task.id}/toggle`);
 
       if (!response.data || response.data.status !== 'success') {
         throw new Error('Failed to update task');
       }
 
-      const result = response.data.task;
+      const result = response.data;
 
-      // Update the task in the list
-      tasksStore.toggleTask(result);
+      // Update the store with the new task
+      tasksStore.updateTask(result.task);
     } catch (error) {
-      console.error('Error toggling task:', error);
-      // Revert the checkbox state
-      data.tasks.tasks = data.tasks.tasks.map(task =>
-        task.id === taskId
-          ? {...task, completed: currentCompleted}
-          : task
-      );
+      console.error('Error updating task:', error);
+
+      // Reset the checkbox state
+      tasksStore.updateTask(task);
     } finally {
-      // Clear loading state
-      tasks.loading[taskId] = false;
+      taskUtils.loading[task.id] = false;
     }
   }
 
@@ -63,7 +52,7 @@
       return;
     }
 
-    tasks.creating = true;
+    taskUtils.creating = true;
     errorMessage = '';
 
     try {
@@ -83,7 +72,7 @@
       console.error('Error creating task:', error);
       errorMessage = error instanceof Error ? error.message : 'Failed to create task';
     } finally {
-      tasks.creating = false;
+      taskUtils.creating = false;
     }
   }
 
@@ -101,11 +90,6 @@
       console.error('Error deleting task:', error);
     }
   }
-
-  // Lifecycle
-  onMount(() => {
-    console.log(data.tasks);
-  })
 </script>
 
 <main class="container">
@@ -121,13 +105,13 @@
         type="text"
         placeholder="Enter new task..."
         bind:value={newTaskDescription}
-        disabled={tasks.creating}
+        disabled={taskUtils.creating}
     />
     <button
         type="submit"
-        disabled={tasks.creating || !newTaskDescription.trim()}
+        disabled={taskUtils.creating || !newTaskDescription.trim()}
     >
-      {tasks.creating ? 'Creating...' : 'Add Task'}
+      {taskUtils.creating ? 'Creating...' : 'Add Task'}
     </button>
   </form>
 
@@ -145,13 +129,13 @@
             <input
                 type="checkbox"
                 checked={task.completed}
-                disabled={tasks.loading[task.id]}
-                onchange={() => handleToggle(task.id, task.completed)}
+                disabled={taskUtils.loading[task.id]}
+                onchange={() => handleToggle(task)}
             />
             <span class="task-description">
               {task.description}
             </span>
-            {#if tasks.loading[task.id]}
+            {#if taskUtils.loading[task.id]}
               <span class="loading">updating...</span>
             {/if}
           </label>

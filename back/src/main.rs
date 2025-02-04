@@ -122,13 +122,13 @@ fn all_options() {
 ///
 /// ## Returns
 /// JSON response indicating success or failure of the operation
-#[get("/<id>/toggle")]
+#[patch("/<id>/toggle")]
 async fn toggle(id: i32, conn: DbConn) -> Json<serde_json::Value> {
     match Task::toggle_with_id(id, &conn).await {
         Ok(task) => Json(json!({
             "status": "success",
             "message": format!("Successfully toggled task {}", id),
-            "completed": task.completed
+            "task": task
         })),
         Err(e) => Json(json!({
             "status": "error",

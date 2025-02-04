@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import type { TTask, TTasksResponse } from '$lib/types';
+import type {TTask, TTasksResponse} from "$lib/types/task";
 
 const createTasksStore = () => {
     const { subscribe, set, update } = writable<TTasksResponse>();
@@ -24,7 +24,7 @@ const createTasksStore = () => {
             };
         }),
         deleteTask: (id: number) => update(state => {
-            if (!state) return state;
+            if (!state || !state.tasks.length) return state;
 
             return {
                 ...state,
@@ -32,23 +32,14 @@ const createTasksStore = () => {
                 total: state.total - 1
             };
         }),
-        toggleTask: (id: number) => update(state => {
+        updateTask: (task: TTask) => update(state => {
             if (!state) return state;
 
             return {
                 ...state,
-                tasks: state.tasks.map(task => {
-                    if (task.id === id) {
-                        return {
-                            ...task,
-                            completed: !task.completed
-                        };
-                    }
-
-                    return task;
-                })
+                tasks: state.tasks.map(t => t.id === task.id ? task : t)
             };
-        })
+        }),
     };
 }
 
