@@ -1,5 +1,7 @@
 # Full-Stack Task Management Application
 
+<img src="./assets/logo.png">
+
 A modern web application built with Rust and SvelteKit for managing tasks.
 Created for boilerplating our project.
 
