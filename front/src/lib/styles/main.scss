@@ -1,0 +1,43 @@
+@use "reset";
+@use "variables";
+@use "base";
+
+html[data-theme='1'] {
+  --background-color: #002b36;
+  --text-color: #DDD;
+}
+
+html[data-theme='2'] {
+  --background-color: #95ABC0;
+  --text-color: #2B303B;
+}
+
+html[data-theme='3'] {
+  --background-color: #11111A;
+  --text-color: #6ACAC9;
+}
+
+html[data-theme='4'] {
+  --background-color: #88B7BD;
+  --text-color: #fff0b3;
+}
+
+html[data-theme='5'] {
+  --background-color: #f4f2ed;
+  --text-color: #ff6542;
+}
+
+html[data-theme='6'] {
+  --background-color: #f1f1ff;
+  --text-color: #009bce;
+}
+
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+
+  transition: background-color 0.1s ease-in-out;
+
+  @include variables.no-user-select();
+}

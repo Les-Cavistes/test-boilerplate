@@ -1,0 +1,88 @@
+/**
+ * Mixins
+ */
+@mixin no-user-select() {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+@mixin drop-shadow-filter($drop-shadow) {
+  filter: drop-shadow($drop-shadow);
+  -webkit-filter: drop-shadow($drop-shadow);
+}
+
+@mixin base-style() {
+  background-color: $app-bg-light;
+  transition: background-color 0.5s ease-in-out;
+
+  :global(body.dark) & {
+    color: $main-color;
+    background-color: $app-bg-dark;
+  }
+}
+
+@mixin blurry-bg($filter-blur: 16px, $bg-color: #eeeeee25) {
+  background-color: $bg-color;
+  backdrop-filter: blur($filter-blur);
+  -webkit-backdrop-filter: blur($filter-blur); // Compatible with Safari
+}
+
+
+/**
+ * COLORS
+ */
+$gh-bg: #0d1117;
+$gh-bg-secondary: #161b22;
+$gh-button: #21262d;
+$gh-button-active: #30363d;
+$gh-text: #bed1d9;
+$gh-text-secondary: #8b949e;
+$gh-button-border: #363b42;
+$gh-button-border-active: #8b949e;
+$gh-yellow: #e3b341;
+$gh-blue: #58a6ff;
+$gh-blue-dark: #1f6feb;
+$gh-red: #f56140;
+$gh-red-active: #f78166;
+$gh-green: #238636;
+$gh-green-active: #2ea043;
+$gh-green-dark: #1d5927;
+$gh-border: #30363d;
+$gh-border-dark: #21262d;
+
+//$app-bg-dark: #212A37;
+//$app-bg-dark: #00203E;
+//$app-bg-dark: #080a13;
+$app-bg-dark: #002b36;
+$app-bg-light: #e5e3de;
+
+$black: #02040a;
+$black-dimed: #02040a75;
+//$main-color: rgb(205, 201, 255);
+$main-color: rgb(255, 255, 255);
+
+$translucent-tag: rgba(162, 162, 162, 0.2);
+
+$outline-dark: #eeeeee25;
+
+
+/* Corner radiuses */
+$outer-corner-radius: 2rem;
+$inner-corner-radius: $outer-corner-radius * 0.75;
+
+/**
+ * Paddings
+ */
+$main-padding: 1rem;
+
+/**
+ * Heights and Widths
+ */
+
+/**
+ * Fonts
+ */

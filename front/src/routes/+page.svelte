@@ -5,6 +5,7 @@
   import type {TTask} from "$lib/types";
   import {tasksStore} from '$lib/stores/tasks';
   import axios from "axios";
+  import "$lib/styles/main.scss";
 
   // Variables
   const {data}: PageProps = $props();
@@ -214,6 +215,28 @@
         opacity: 1;
       }
     }
+
+    // Delete Button
+    .delete-button {
+      height: 60%;
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0;
+      transition: opacity $transition-speed;
+      background: $danger-color;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 4px 8px;
+      cursor: pointer;
+      font-size: 1rem;
+
+      &:hover {
+        background: $danger-hover;
+      }
+    }
   }
 
   .task-label {
@@ -279,25 +302,6 @@
     }
   }
 
-  // Delete Button
-  .delete-button {
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    opacity: 0;
-    transition: opacity $transition-speed;
-    background: $danger-color;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 4px 8px;
-    cursor: pointer;
-
-    &:hover {
-      background: $danger-hover;
-    }
-  }
 
   // Error Message
   .error-message {
