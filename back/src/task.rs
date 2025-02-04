@@ -199,4 +199,26 @@ impl Task {
         })
         .await
     }
+
+    /// # `update_description`
+    /// Updates a task's description.
+    ///
+    /// ## Arguments
+    /// * `id` - The ID of the task to update
+    /// * `new_description` - The new description for the task
+    /// * `conn` - Database connection
+    ///
+    /// ## Returns
+    /// The updated task
+    pub async fn update_description(id: i32, new_description: String, conn: &DbConn) -> QueryResult<Task> {
+        conn.run(move |c| {
+            diesel::update(tasks::table.filter(tasks::id.eq(id)))
+                .set(tasks::description.eq(new_description))
+                .execute(c)?;
+
+            // Fetch and return the updated task
+            tasks::table.filter(tasks::id.eq(id)).get_result::<Task>(c)
+        })
+        .await
+    }
 }

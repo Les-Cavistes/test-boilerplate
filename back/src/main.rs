@@ -122,7 +122,7 @@ fn all_options() {
 ///
 /// ## Returns
 /// JSON response indicating success or failure of the operation
-#[put("/<id>")]
+#[get("/<id>/toggle")]
 async fn toggle(id: i32, conn: DbConn) -> Json<serde_json::Value> {
     match Task::toggle_with_id(id, &conn).await {
         Ok(task) => Json(json!({
@@ -161,6 +161,54 @@ async fn create(todo: Json<Todo>, conn: DbConn) -> Json<serde_json::Value> {
     }
 }
 
+/// # `delete_task`
+/// Deletes a task by ID.
+///
+/// ## Arguments
+/// * `id` - The ID of the task to delete
+/// * `conn` - Database connection
+///
+/// ## Returns
+/// JSON response indicating success or failure
+#[delete("/<id>")]
+async fn delete(id: i32, conn: DbConn) -> Json<serde_json::Value> {
+    match Task::delete_with_id(id, &conn).await {
+        Ok(_) => Json(json!({
+            "status": "success",
+            "message": format!("Successfully deleted task {}", id)
+        })),
+        Err(e) => Json(json!({
+            "status": "error",
+            "message": format!("Failed to delete task: {}", e)
+        })),
+    }
+}
+
+/// # `update`
+/// Updates a task's description.
+///
+/// ## Arguments
+/// * `id` - The ID of the task to update
+/// * `task` - The updated task data
+/// * `conn` - Database connection
+///
+/// ## Returns
+/// JSON response containing the updated task or an error message
+#[put("/<id>", data = "<task>")]
+async fn update(id: i32, task: Json<UpdateTask>, conn: DbConn) -> Json<serde_json::Value> {
+    match Task::update_description(id, task.description.clone(), &conn).await {
+        Ok(updated_task) => Json(json!({
+            "status": "success",
+            "message": format!("Successfully updated task {}", id),
+            "task": updated_task
+        })),
+        Err(e) => Json(json!({
+            "status": "error",
+            "message": format!("Failed to update task: {}", e)
+        })),
+    }
+}
+
 /// # `rocket`
 /// Configures and launches the Rocket application.
 /// Sets up database connection, runs migrations, configures CORS, and mounts routes.
@@ -174,5 +222,12 @@ fn rocket() -> _ {
         .attach(AdHoc::on_ignite("Run Migrations", run_migrations))
         .attach(Cors)
         .mount("/", routes![root, all_options])
-        .mount("/task", routes![all, toggle, create])
+        .mount("/task", routes![all, toggle, create, delete, update])
+}
+
+/// Add these new structs for the update request
+#[derive(Debug, rocket::serde::Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct UpdateTask {
+    description: String,
 }
