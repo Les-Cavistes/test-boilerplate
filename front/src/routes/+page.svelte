@@ -93,9 +93,9 @@
 </script>
 
 <main class="container">
-  <header>
+  <section>
     <h1>Tasks ({$tasksStore?.total ?? 0})</h1>
-  </header>
+  </section>
 
   <form
       class="create-task-form"
@@ -169,7 +169,7 @@
     margin: 0 auto;
     padding: 2rem;
 
-    header {
+    section {
       margin-bottom: 2rem;
     }
   }
