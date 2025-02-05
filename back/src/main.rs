@@ -3,9 +3,10 @@ use rocket::http::Header;
 use rocket::serde::json::{json, serde_json, Json};
 use rocket::{fairing::AdHoc, Build, Rocket};
 use test_rocket_back::{
-    task::{PaginatedTasks, Pagination, Task, Todo},
+    task::{Task, Todo},
     DbConn,
 };
+use test_rocket_back::{DEFAULT_PAGE, MAX_PER_PAGE};
 
 #[macro_use]
 extern crate rocket;
@@ -58,19 +59,29 @@ fn root() -> &'static str {
 /// ## Returns
 /// JSON response containing paginated tasks or an error message
 #[get("/all?<page>&<per_page>")]
-async fn all(
-    page: Option<i64>,
-    per_page: Option<i64>,
-    conn: DbConn,
-) -> Result<Json<PaginatedTasks>, String> {
-    let pagination = Pagination {
-        page: page.unwrap_or(1),
-        per_page: per_page.unwrap_or(10),
-    };
-    Task::paginated(pagination, &conn)
-        .await
-        .map(Json)
-        .map_err(|e| e.to_string())
+async fn all(page: Option<i64>, per_page: Option<i64>, conn: DbConn) -> Json<serde_json::Value> {
+    let page = page.map_or(DEFAULT_PAGE, |p| p.max(1));
+
+    let per_page = per_page.map_or(MAX_PER_PAGE, |p| p.clamp(1, MAX_PER_PAGE));
+
+    match Task::all_paginated(page, per_page, &conn).await {
+        Ok(pagination_result) => Json(json!({
+            "status": "success",
+            "data": {
+                "tasks": pagination_result.items,
+                "pagination": {
+                    "current_page": pagination_result.page,
+                    "per_page": pagination_result.per_page,
+                    "total_pages": pagination_result.total_pages,
+                    "total_items": pagination_result.total_items
+                }
+            }
+        })),
+        Err(e) => Json(json!({
+            "status": "error",
+            "message": format!("Failed to fetch tasks: {}", e)
+        })),
+    }
 }
 
 /// # CORS Configuration
