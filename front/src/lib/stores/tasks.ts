@@ -20,7 +20,6 @@ const createTasksStore = () => {
             return {
                 ...state,
                 tasks: [task, ...state.tasks], // Add new task at the beginning
-                total: state.total + 1
             };
         }),
         deleteTask: (id: number) => update(state => {
@@ -29,7 +28,6 @@ const createTasksStore = () => {
             return {
                 ...state,
                 tasks: state.tasks.filter(task => task.id !== id),
-                total: state.total - 1
             };
         }),
         updateTask: (task: TTask) => update(state => {

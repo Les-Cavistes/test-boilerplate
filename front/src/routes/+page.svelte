@@ -94,7 +94,7 @@
 
 <main class="container">
   <section>
-    <h1>Tasks ({$tasksStore?.total ?? 0})</h1>
+    <h1>Tasks ({$tasksStore?.tasks.length ?? 0})</h1>
   </section>
 
   <form
