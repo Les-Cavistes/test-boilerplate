@@ -14,12 +14,16 @@ export const Task = z.object({
 
 export type TTask = z.infer<typeof Task>;
 
+const PaginationSchema = z.object({
+  current_page: z.number(),
+  per_page: z.number(),
+  total_items: z.number(),
+  total_pages: z.number(),
+});
+
 export const TasksResponse = z.object({
   tasks: z.array(Task),
-  total: z.number(),
-  page: z.number(),
-  per_page: z.number(),
-  total_pages: z.number(),
+  pagination: PaginationSchema,
 });
 
 export type TTasksResponse = z.infer<typeof TasksResponse>;
