@@ -13,7 +13,7 @@ import {TasksResponse, type TTasksResponse} from "$lib/types/task";
 export const GET: RequestHandler = async () => {
   const res = await axios.get(`${PUBLIC_BACK_ENDPOINT}/task/all`);
 
-  const tasks: TTasksResponse = TasksResponse.parse(res.data);
+  const tasks: TTasksResponse = TasksResponse.parse(res.data.data);
 
   return json(tasks);
 }
