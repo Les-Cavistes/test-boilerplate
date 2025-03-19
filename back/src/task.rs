@@ -1,32 +1,27 @@
 use crate::pagination::{Paginate, PaginationResult};
+use crate::schema::tasks;
 use diesel::query_dsl::QueryDsl;
 use diesel::{self, prelude::*};
 use rocket::serde::Serialize;
 
-mod schema {
-
-    diesel::table! {
-        tasks {
-            id -> Nullable<Integer>,
-            description -> Text,
-            completed -> Bool,
-        }
-    }
-}
-
-use self::schema::tasks;
-
 use crate::DbConn;
+
+#[derive(Insertable, Debug)]
+#[diesel(table_name = tasks)]
+pub struct NewTask {
+    pub description: String,
+    pub completed: bool,
+}
 
 /// # Task
 /// Represents a task in the system.
 /// This struct maps directly to the database 'tasks' table.
-#[derive(Serialize, Queryable, Insertable, Debug, Clone)]
-#[serde(crate = "rocket::serde")]
+#[derive(Serialize, Queryable, Selectable, Debug, Clone)]
 #[diesel(table_name = tasks)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Task {
     #[serde(skip_deserializing)]
-    pub id: Option<i32>,
+    pub id: i32, // Non-optional for querying
     pub description: String,
     pub completed: bool,
 }
@@ -72,15 +67,13 @@ impl Task {
     /// * Returns a `QueryResult` error if the task cannot be retrieved after
     pub async fn insert(todo: Todo, conn: &DbConn) -> QueryResult<Task> {
         conn.run(|c| {
-            let t = Task {
-                id: None,
+            let new_task = NewTask {
                 description: todo.description,
                 completed: false,
             };
-            diesel::insert_into(tasks::table).values(&t).execute(c)?;
-
-            // Fetch and return the inserted task
-            tasks::table.order(tasks::id.desc()).first(c)
+            diesel::insert_into(tasks::table)
+                .values(&new_task)
+                .get_result(c)
         })
         .await
     }
@@ -101,6 +94,7 @@ impl Task {
     pub async fn toggle_with_id(id: i32, conn: &DbConn) -> QueryResult<Task> {
         conn.run(move |c| {
             let task = tasks::table
+                .select(Task::as_select())
                 .filter(tasks::id.eq(id))
                 .get_result::<Task>(c)?;
             let new_status = !task.completed;
@@ -206,6 +200,7 @@ impl Task {
     ) -> QueryResult<PaginationResult<Task>> {
         conn.run(move |c| {
             tasks::table
+                .select(Task::as_select())
                 .order(tasks::id.desc())
                 .paginate(page)
                 .per_page(per_page)
