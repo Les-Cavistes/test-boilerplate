@@ -2,7 +2,7 @@ use diesel::prelude::*;
 use diesel::query_builder::{AstPass, Query, QueryFragment, QueryId};
 use diesel::query_dsl::methods::LoadQuery;
 use diesel::sql_types::BigInt;
-use diesel::sqlite::Sqlite;
+use diesel::pg::Pg;
 
 use crate::DEFAULT_PER_PAGE;
 
@@ -63,10 +63,10 @@ impl<T> Paginated<T> {
     /// * Returns a `QueryResult` error if pagination calculation fails
     pub fn load_and_count_pages<'a, U>(
         self,
-        conn: &mut SqliteConnection,
+        conn: &mut PgConnection,
     ) -> QueryResult<PaginationResult<U>>
     where
-        Self: LoadQuery<'a, SqliteConnection, (U, i64)>,
+        Self: LoadQuery<'a, PgConnection, (U, i64)>,
     {
         let per_page = self.per_page;
         let page = self.page;
@@ -89,13 +89,13 @@ impl<T: Query> Query for Paginated<T> {
     type SqlType = (T::SqlType, BigInt);
 }
 
-impl<T> RunQueryDsl<SqliteConnection> for Paginated<T> {}
+impl<T> RunQueryDsl<PgConnection> for Paginated<T> {}
 
-impl<T> QueryFragment<Sqlite> for Paginated<T>
+impl<T> QueryFragment<Pg> for Paginated<T>
 where
-    T: QueryFragment<Sqlite>,
+    T: QueryFragment<Pg>,
 {
-    fn walk_ast<'b>(&'b self, mut out: AstPass<'_, 'b, Sqlite>) -> QueryResult<()> {
+    fn walk_ast<'b>(&'b self, mut out: AstPass<'_, 'b, Pg>) -> QueryResult<()> {
         out.push_sql("SELECT *, COUNT(*) OVER () FROM (");
         self.query.walk_ast(out.reborrow())?;
         out.push_sql(") t LIMIT ");
