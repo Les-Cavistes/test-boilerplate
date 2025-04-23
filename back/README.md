@@ -1,6 +1,6 @@
 # Rust Rocket Task Management API
 
-A REST API built with Rocket framework for managing tasks, featuring SQLite database integration and pagination support.
+A REST API built with Rocket framework for managing tasks, featuring PostgreSQL database integration and pagination support.
 
 ## Project Structure
 
@@ -23,8 +23,8 @@ back/
 The project uses `rocket_sync_db_pools` for database connectivity:
 
 ```rust
-#[rocket_sync_db_pools::database("sqlite_database")]
-pub struct DbConn(diesel::SqliteConnection);
+#[rocket_sync_db_pools::database("postgres_database")]
+pub struct DbConn(diesel::PgConnection);
 ```
 
 This provides:
@@ -118,7 +118,7 @@ pub struct Task {
 
 1. Install dependencies:
    ```bash
-   cargo install diesel_cli --no-default-features --features sqlite
+   cargo install diesel_cli --no-default-features --features postgres
    ```
 
 2. Set up the database:
@@ -135,7 +135,7 @@ pub struct Task {
 ## Technical Details
 
 - **Framework**: Rocket 0.5+
-- **Database**: SQLite with Diesel ORM
+- **Database**: PostgreSQL with Diesel ORM
 - **Authentication**: Not implemented (can be added as needed)
 - **API Format**: JSON
 - **Async Support**: Full async/await support for database operations

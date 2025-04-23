@@ -12,7 +12,7 @@ Created for boilerplating our project.
 - Rust
 - Rocket (Web framework)
 - Diesel ORM
-- SQLite Database
+- PostgreSQL Database
 
 ### Frontend
 
@@ -24,7 +24,7 @@ Created for boilerplating our project.
 
 - Rust (latest stable version)
 - Node.js (LTS version)
-- SQLite3
+- PostgreSQL
 
 ## Project Structure
 
@@ -47,7 +47,7 @@ cd back
 2. Install Diesel CLI (if not already installed) (optional):
 
 ```bash
-cargo install diesel_cli --no-default-features --features sqlite
+cargo install diesel_cli --no-default-features --features postgres
 ```
 
 3. Set up the database (optional):
