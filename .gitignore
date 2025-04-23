@@ -1,0 +1,14 @@
+# Front
+**/node_modules/
+
+# Back
+**/target/
+**/db/*
+**/Cargo.lock
+**/Rocket.toml
+
+# Misc
+**/.DS_Store
+**/.idea
+**/.env
+**/.env.local
