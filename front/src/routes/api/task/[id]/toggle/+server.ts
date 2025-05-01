@@ -4,13 +4,13 @@
  * @author Tom Planche
  */
 
-import {json, type RequestHandler} from '@sveltejs/kit';
-import {PUBLIC_BACK_ENDPOINT} from '$env/static/public';
-import {APIResponse} from '$lib/types/';
+import {json, type RequestHandler} from "@sveltejs/kit";
+import {PUBLIC_BACK_ENDPOINT} from "$env/static/public";
+import {APIResponse} from "$lib/types/";
 import {Task} from "$lib/types/task";
 
-import axios from 'axios';
-import {z} from "zod";
+import axios from "axios";
+import type {z} from "zod";
 
 const ToggleTaskResponseSchema = APIResponse.extend({
   task: Task,
@@ -22,20 +22,21 @@ export const PATCH: RequestHandler = async (event) => {
   const id = event.params.id;
 
   try {
-
-
-    const response2 = ToggleTaskResponseSchema.parse(
-      (await axios.patch(`${PUBLIC_BACK_ENDPOINT}/task/${id}/toggle`)).data
+    const response = ToggleTaskResponseSchema.parse(
+      (await axios.patch(`${PUBLIC_BACK_ENDPOINT}/task/${id}/toggle`))
+        .data,
     );
 
-
-    return json(response2);
+    return json(response);
   } catch (error) {
-    return json(APIResponse.parse({
-      completed: false,
-      message: 'Failed to update task',
-      status: 'error'
-    }), {status: 500});
+    return json(
+      APIResponse.parse({
+        message: "Failed to update task",
+        status: "error",
+        error
+      }),
+      {status: 500},
+    );
   }
 };
 

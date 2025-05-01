@@ -3,6 +3,7 @@ import type {RequestHandler} from './$types';
 import {PUBLIC_BACK_ENDPOINT} from '$env/static/public';
 import {z} from 'zod';
 import axios from 'axios';
+import {APIResponse} from "$lib/types";
 
 const createTaskSchema = z.object({
   description: z.string().min(1, "Description cannot be empty")
@@ -38,9 +39,11 @@ export const POST: RequestHandler = async ({request}) => {
       }, {status: error.response?.status || 500});
     }
 
-    return json({
-      status: 'error',
-      message: error instanceof Error ? error.message : 'Failed to create task'
-    }, {status: 500});
+    return json(
+      APIResponse.parse({
+        message: 'Failed to create task',
+        status: 'error',
+        error: (error as Error).message
+      }), {status: 500});
   }
 }; 
